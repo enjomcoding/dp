@@ -1,78 +1,77 @@
 
 import java.util.ArrayList;
-//todo: solve mcm matrix d - n
-
+//todo: matrix chain multiplication
 public class Matrix_Chain_Mult {
 
+    // Matrix multiplication helper
+    public static ArrayList<int[][]> multiply(int[][] A, int[][] B, int num, ArrayList<int[][]> matrices) {
+        int[][] res_mtrx = new int[A.length][B[0].length];
+        for (int h = 0; h < num; h++) {
+            for (int i = 0; i < A.length; i++) {
+                for (int j = 0; j < B[0].length; j++) {
+                    res_mtrx[i][j] = 0; // Initialize the result matrix to zero
+                }
+            }
+            matrices.add(res_mtrx); // Add the result matrix to the list of matrices
+        }
+        return matrices;
+    }
+
+    // This method computes and prints the optimal parenthesization and the minimum multiplication cost
+    protected static void get_pro(ArrayList<Integer> dim) {
+        int num = dim.size() - 1;  // number of matrices
+        int[][] m = new int[num][num];
+        int[][] s = new int[num][num];
+
+        // Initialize the m matrix (min multiplication costs)
+        for (int i = 0; i < num; i++) {
+            m[i][i] = 0; // Cost is 0 for one matrix
+        }
+
+        // Dynamic programming to compute the minimum cost and optimal parenthesization
+        for (int L = 2; L <= num; L++) { // L = chain length
+            for (int i = 0; i <= num - L; i++) {
+                int j = i + L - 1;
+                m[i][j] = Integer.MAX_VALUE;
+
+                for (int k = i; k < j; k++) {
+                    int q = m[i][k] + m[k + 1][j] + dim.get(i) * dim.get(k + 1) * dim.get(j + 1);
+                    if (q < m[i][j]) {
+                        m[i][j] = q;
+                        s[i][j] = k;
+                    }
+                }
+            }
+        }
+
+        // Output the results
+        System.out.println("Minimum number of multiplications: " + m[0][num - 1]);
+        System.out.print("Optimal Parenthesization: ");
+        printParenthesis(s, 0, num - 1);
+        System.out.println();
+    }
+
+// This helper function prints the optimal parenthesization from the `s` matrix
+    private static void printParenthesis(int[][] s, int i, int j) {
+        if (i == j) {
+            System.out.print((char) ('A' + i));  // Correctly print the matrix name (A, B, C...)
+        } else {
+            System.out.print("(");
+            printParenthesis(s, i, s[i][j]);  // Recursively print the left side
+            printParenthesis(s, s[i][j] + 1, j);  // Recursively print the right side
+            System.out.print(")");
+        }
+    }
+
+// This method computes dimensions for matrices C to N (if needed)
     protected static ArrayList<Integer> get_preDim(ArrayList<Integer> dim, int num) {
-        int dim_len = dim.size();
-        for (int i = dim_len; i < num + 1; i++) {
-            int col = dim.get(0);
-            dim.add(col);
+        // Ensure that the dimension list has at least 2 elements (A and B)
+        for (int i = dim.size(); i < num + 1; i++) {
+            // Add the column of the previous matrix
+            dim.add(dim.get(0));  // Add previous matrix column as the new matrix row
+            //dim.add(100); 
         }
         return dim;
-    }
-
-    public static void get_pro(ArrayList<int[][]> matrices) {
-        // Step 1: Multiply A × B
-        int[][] mtrx_n = multiply(matrices.get(0), matrices.get(1)); // AB
-
-        // Step 2: Multiply the rest: (AB)CDE...
-        for (int i = 2; i < matrices.size(); i++) {
-            mtrx_n = multiply(mtrx_n, matrices.get(i));
-        }
-
-        // Print the result
-        System.out.println("Result Matrix:");
-        for (int i = 0; i < mtrx_n.length; i++) {
-            for (int j = 0; j < mtrx_n[0].length; j++) {
-                System.out.print(mtrx_n[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    // Matrix multiplication helper
-    public static int[][] multiply(int[][] A, int[][] B) {
-        int[][] res_mtrx = new int[A.length][B[0].length];
-
-        for (int i = 0; i < A.length; i++) {
-            for (int j = 0; j < B[0].length; j++) {
-                for (int k = 0; k < A[0].length; k++) {
-                    res_mtrx[i][j] += A[i][k] * B[k][j];
-                }
-            }
-        }
-
-        return res_mtrx;
-    }
-
-    protected void get_min_order(ArrayList<Integer> dim, int num){
-        //must return the min order of multiplication and the order of multiplication (sample: ((AB)C)D)E))...)
-        for (i = 1; i < n; i++)
-            m[i][i] = 0;
- 
-        // L is chain length.
-        for (L = 2; L < n; L++) 
-        {
-            for (i = 1; i < n - L + 1; i++) 
-            {
-                j = i + L - 1;
-                if (j == n)
-                    continue;
-                m[i][j] = Integer.MAX_VALUE;
-                for (k = i; k <= j - 1; k++) 
-                {
-                    // q = cost/scalar multiplications
-                    q = m[i][k] + m[k + 1][j]
-                        + p[i - 1] * p[k] * p[j];
-                    if (q < m[i][j])
-                        m[i][j] = q;
-                }
-            }
-        }
- 
-        return m[1][n - 1];
     }
 
 }
